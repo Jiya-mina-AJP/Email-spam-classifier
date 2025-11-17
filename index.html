@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Spam Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .result {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .spam {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 2px solid #c62828;
+        }
+        .not-spam {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #2e7d32;
+        }
+        form {
+            margin-top: 30px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .debug-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .confidence {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: normal;
+        }
+        .confidence-bar {
+            width: 100%;
+            height: 25px;
+            background-color: #e0e0e0;
+            border-radius: 12px;
+            margin-top: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .confidence-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 12px;
+        }
+        .confidence-fill.spam {
+            background: linear-gradient(90deg, #c62828, #e53935);
+        }
+        .confidence-fill.not-spam {
+            background: linear-gradient(90deg, #2e7d32, #4caf50);
+        }
+        .confidence-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            font-size: 14px;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = document.querySelector('input[type="submit"]');
+            
+            form.addEventListener('submit', function(e) {
+                const emailText = document.getElementById('email').value.trim();
+                console.log('Form submitted with text:', emailText);
+                
+                if (!emailText) {
+                    e.preventDefault();
+                    alert('Please enter some email content!');
+                    return false;
+                }
+                
+                submitBtn.value = 'Processing...';
+                submitBtn.disabled = true;
+                form.classList.add('loading');
+            });
+            
+            // Debug: Log if label exists
+            {% if label is defined %}
+                console.log('Label value:', {{ label }});
+            {% endif %}
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Email Spam Classifier</h1>
+
+        {% if error %}
+            <div class="result spam" style="background-color: #fff3cd; color: #856404; border-color: #856404;">
+                ⚠️ {{ error }}
+            </div>
+        {% elif label is defined and label is not none %}
+            <div class="result {% if label == 1 %}spam{% else %}not-spam{% endif %}">
+                {% if label == 1 %}
+                    ⚠️ SPAM
+                {% else %}
+                    ✓ NOT SPAM
+                {% endif %}
+                {% if confidence %}
+                <div class="confidence">
+                    Confidence: {{ confidence }}%
+                    <div class="confidence-bar">
+                        <div class="confidence-fill {% if label == 1 %}spam{% else %}not-spam{% endif %}" style="width: {{ confidence }}%;">
+                            <span class="confidence-text">{{ confidence }}%</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <form action="/predict" method="post">
+            <label for="email">Enter Email Content:</label>
+            <textarea id="email" name="email" rows="15" placeholder="Paste or type your email content here...">{% if email_text %}{{ email_text }}{% endif %}</textarea>
+            <input type="submit" value="Predict">
+        </form>
+        
+        <div class="debug-info">
+            <strong>Prediction Details:</strong><br>
+            Result: {% if label is defined and label is not none %}{% if label == 1 %}Spam{% else %}Not Spam{% endif %}{% else %}Not set{% endif %}<br>
+            {% if confidence %}Confidence: {{ confidence }}%<br>{% endif %}
+            Email text length: {% if email_text %}{{ email_text|length }}{% else %}0{% endif %} characters
+        </div>
+    </div>
+</body>
+</html>

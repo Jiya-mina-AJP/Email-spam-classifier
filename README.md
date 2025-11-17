@@ -1,48 +1,48 @@
-# Email Spam Classifier Web App
+# Email Spam Classification Flask App
 
-This project is a simple and interactive web application that classifies email text as either Spam or Not Spam. It uses a combination of machine learning and keyword-based rules to improve classification accuracy.
-
----
-
-## Overview
-
-Spam detection remains a key application of natural language processing. This project focuses on providing a practical, user-facing example of how spam filtering works by combining:
-
-- A machine learning model (trained using TF-IDF and Logistic Regression)
-- Rule-based detection of common spam patterns (keywords, formatting, etc.)
-
-Through a Flask-based web interface, users can paste email content and get instant predictions with a confidence score.
-
----
+A web application that classifies emails as spam or not spam using a machine learning model.
 
 ## Features
 
-- Classify emails in real-time through a web form
-- Display the prediction outcome (Spam or Not Spam) with confidence
-- Hybrid system: model prediction enhanced with keyword/pattern-based rules
-- Ready for deployment using Gunicorn and Procfile
+- Simple web interface for email spam classification
+- Real-time prediction using pre-trained ML model
+- Clean and intuitive UI
 
----
+## Setup
 
-## Tech Stack
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-| Component    | Technology         |
-|--------------|--------------------|
-| Backend      | Python, Flask      |
-| ML Model     | scikit-learn, NumPy|
-| Frontend     | HTML, Jinja2       |
-| Deployment   | Gunicorn, Procfile |
+2. Run the application:
+```bash
+python app.py
+```
 
----
+3. Open your browser and navigate to `http://localhost:5000`
+
+## Usage
+
+1. Enter or paste an email message in the text area
+2. Click "Predict" to classify the email
+3. The result will be displayed as either "Spam" (red) or "Not Spam" (green)
 
 ## Project Structure
 
-email-spam-classifier/
-├── app.py # Flask application
+```
+email-spam-classification-flask/
+├── app.py                 # Flask application
 ├── model/
-│ ├── model.pkl # Trained machine learning model
-│ └── vectorizer.pkl # TF-IDF vectorizer
+│   ├── model.pkl         # Trained ML model
+│   └── vectorizer.pkl    # Text vectorizer
 ├── templates/
-│ └── index.html # Simple web UI
-├── requirements.txt # Python dependencies
-└── Procfile # Deployment configuration
+│   └── index.html        # Web interface
+├── requirements.txt      # Python dependencies
+└── Procfile             # Deployment configuration
+```
+
+## Deployment
+
+The project includes a `Procfile` for deployment on platforms like Heroku. Make sure `gunicorn` is installed (included in requirements.txt).
+
